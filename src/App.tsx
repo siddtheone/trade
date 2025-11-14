@@ -3,23 +3,47 @@ import type { GridColDef } from "@mui/x-data-grid";
 import Box from "@mui/material/Box";
 import CircularProgress from "@mui/material/CircularProgress";
 import { useEffect, useState } from "react";
+import type { TradeRow } from "./mockTrades";
+import {
+  formatDate,
+  formatTradeId,
+  getExpirationStatus,
+} from "./utils/tradeHelpers";
 
-const columns: GridColDef[] = [
-  { field: "tradeId", headerName: "Trade Id" },
+const columns: GridColDef<TradeRow>[] = [
+  {
+    field: "tradeId",
+    headerName: "Trade Id",
+    valueFormatter: (value) => formatTradeId(value as string),
+  },
   { field: "version", headerName: "Version" },
-  { field: "counterPartyId", headerName: "Counter-Party Id" },
+  { field: "counterPartyId", headerName: "Counter-Party Id", width: 200 },
   { field: "bookId", headerName: "Book-Id" },
-  { field: "maturityDate", headerName: "Maturity Date" },
-  { field: "createdDate", headerName: "Created Date" },
-  { field: "expired", headerName: "Expired" },
+  {
+    field: "maturityDate",
+    headerName: "Maturity Date",
+    valueFormatter: (value) => formatDate(value as string),
+    width: 200,
+  },
+  {
+    field: "createdDate",
+    headerName: "Created Date",
+    valueFormatter: (value) => formatDate(value as string),
+    width: 200,
+  },
+  {
+    field: "expired",
+    headerName: "Expired",
+    valueGetter: (_, row) => getExpirationStatus(row.maturityDate),
+    width: 200,
+  },
 ];
 
 function App() {
-  const [rows, setRows] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [rows, setRows] = useState<TradeRow[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setLoading(true);
     fetch("/api/trades")
       .then((res) => res.json())
       .then((data) => setRows(data))
@@ -28,31 +52,20 @@ function App() {
 
   return (
     <Box sx={{ height: 600, width: "100%" }}>
-      {loading ? (
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            height: 600,
-          }}
-        >
-          <CircularProgress />
-        </Box>
-      ) : (
-        <DataGrid
-          rows={rows.map((row, i) => ({
-            ...row,
-            id: `${row.tradeId}_${row.version}`,
-          }))}
-          columns={columns}
-          initialState={{
-            pagination: { paginationModel: { pageSize: 20 } },
-          }}
-          pageSizeOptions={[20, 50, 100]}
-          disableRowSelectionOnClick
-        />
-      )}
+      <DataGrid
+        rows={rows.map((row) => ({
+          ...row,
+          id: `${row.tradeId}_${row.version}`,
+        }))}
+        columns={columns}
+        initialState={{
+          pagination: { paginationModel: { pageSize: 20 } },
+        }}
+        pageSizeOptions={[20, 50, 100]}
+        disableRowSelectionOnClick
+        loading={loading}
+        showToolbar
+      />
     </Box>
   );
 }
