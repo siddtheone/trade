@@ -1,15 +1,31 @@
-import { ThemeProvider, createTheme, CssBaseline } from '@mui/material';
-import { ReactNode } from 'react';
+import {
+  ThemeProvider,
+  createTheme,
+  CssBaseline,
+  useMediaQuery,
+} from "@mui/material";
+import { useMemo } from "react";
+import type { ReactNode } from "react";
 
-const theme = createTheme({
-  // Add your custom MUI theme options here if needed
-});
+export const ComponentProvider = ({ children }: { children: ReactNode }) => {
+  const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
 
-export const ComponentProvider = ({ children }: { children: ReactNode }) => (
-  <ThemeProvider theme={theme}>
-    <CssBaseline />
-    {children}
-  </ThemeProvider>
-);
+  const theme = useMemo(
+    () =>
+      createTheme({
+        palette: {
+          mode: prefersDarkMode ? "dark" : "light",
+        },
+      }),
+    [prefersDarkMode]
+  );
+
+  return (
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      {children}
+    </ThemeProvider>
+  );
+};
 
 export default ComponentProvider;
