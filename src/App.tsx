@@ -1,7 +1,7 @@
 import { DataGrid } from "@mui/x-data-grid";
 import type { GridColDef } from "@mui/x-data-grid";
 import Box from "@mui/material/Box";
-import CircularProgress from "@mui/material/CircularProgress";
+import Chip from "@mui/material/Chip";
 import { useEffect, useState } from "react";
 import type { TradeRow } from "./mockTrades";
 import {
@@ -36,6 +36,18 @@ const columns: GridColDef<TradeRow>[] = [
     headerName: "Expired",
     valueGetter: (_, row) => getExpirationStatus(row.maturityDate),
     width: 200,
+    renderCell: (params) => {
+      const value = params.value as string;
+      const isExpired = value === "Y";
+      return (
+        <Chip
+          label={isExpired ? "Expired" : "Active"}
+          color={isExpired ? "error" : "success"}
+          size="small"
+          variant={isExpired ? "filled" : "outlined"}
+        />
+      );
+    },
   },
 ];
 
@@ -51,7 +63,7 @@ function App() {
   }, []);
 
   return (
-    <Box sx={{ height: 600, width: "100%" }}>
+    <Box sx={{ height: "100vh", width: "100%" }}>
       <DataGrid
         rows={rows.map((row) => ({
           ...row,
@@ -59,7 +71,7 @@ function App() {
         }))}
         columns={columns}
         initialState={{
-          pagination: { paginationModel: { pageSize: 20 } },
+          pagination: { paginationModel: { pageSize: 100 } },
         }}
         pageSizeOptions={[20, 50, 100]}
         disableRowSelectionOnClick
