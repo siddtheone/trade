@@ -1,10 +1,12 @@
 import { faker } from "@faker-js/faker";
+import type { BookId, CounterPartyId } from "./constants";
+import { BOOK_OPTIONS, COUNTER_PARTY_OPTIONS } from "./constants";
 
 export interface TradeRow {
   tradeId: number;
   version: number;
-  counterPartyId: string;
-  bookId: string;
+  counterPartyId: CounterPartyId;
+  bookId: BookId;
   maturityDate: string;
   createdDate: string;
 }
@@ -17,8 +19,8 @@ export function getMockTrades(): TradeRow[] {
   const tradeIdPool: number[] = [];
   // Base for mock rows
   const buildTradeBase = (): Omit<TradeRow, "tradeId" | "version"> => ({
-    counterPartyId: `CP-${faker.number.int({ min: 1, max: 5 })}`,
-    bookId: `B${faker.number.int({ min: 1, max: 5 })}`,
+    counterPartyId: faker.helpers.arrayElement(COUNTER_PARTY_OPTIONS),
+    bookId: faker.helpers.arrayElement(BOOK_OPTIONS),
     maturityDate:
       Math.random() < 0.33
         ? faker.date.past().toISOString()
